@@ -30,7 +30,6 @@
     --glow-blue: rgba(78, 140, 255, 0.15);
   }
 
-  /* ── Light mode ── */
   .light-mode {
     --bg-deep: #f0f2f5;
     --bg-primary: #f5f6f8;
@@ -49,38 +48,14 @@
     --glow-blue: rgba(59, 124, 239, 0.1);
   }
 
-  .light-mode body::before {
-    background: radial-gradient(ellipse, rgba(59,124,239,0.06) 0%, transparent 70%);
-  }
-
-  .light-mode h1 {
-    background: linear-gradient(135deg, #1a1f2e 0%, #3b5998 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-
-  .light-mode .header-icon {
-    box-shadow: 0 8px 32px rgba(59,124,239,0.2);
-  }
-
-  .light-mode .table-wrapper {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  }
-
-  .light-mode .usage-neutral {
-    background: rgba(85,97,121,0.08); color: var(--text-primary);
-  }
-
-  .light-mode .usage-high {
-    background: rgba(22,168,106,0.12); color: var(--accent-green);
-  }
-
-  .light-mode .usage-low {
-    background: rgba(229,69,69,0.1); color: var(--accent-red);
-  }
-
-  .light-mode .autocomplete {
-    box-shadow: 0 12px 36px rgba(0,0,0,0.12);
-  }
+  .light-mode body::before { background: radial-gradient(ellipse, rgba(59,124,239,0.06) 0%, transparent 70%); }
+  .light-mode h1 { background: linear-gradient(135deg, #1a1f2e 0%, #3b5998 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .light-mode .header-icon { box-shadow: 0 8px 32px rgba(59,124,239,0.2); }
+  .light-mode .table-wrapper { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .light-mode .usage-neutral { background: rgba(85,97,121,0.08); color: var(--text-primary); }
+  .light-mode .usage-high { background: rgba(22,168,106,0.12); color: var(--accent-green); }
+  .light-mode .usage-low { background: rgba(229,69,69,0.1); color: var(--accent-red); }
+  .light-mode .autocomplete { box-shadow: 0 12px 36px rgba(0,0,0,0.12); }
 
   body {
     font-family: 'Outfit', sans-serif;
@@ -93,9 +68,7 @@
 
   body::before {
     content: '';
-    position: fixed;
-    top: -200px; left: 50%;
-    transform: translateX(-50%);
+    position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
     width: 800px; height: 600px;
     background: radial-gradient(ellipse, rgba(78,140,255,0.08) 0%, transparent 70%);
     pointer-events: none; z-index: 0;
@@ -103,19 +76,14 @@
 
   .app { max-width: 1060px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
 
-  /* ── Header ── */
   .header { text-align: center; margin-bottom: 40px; }
-
   .header-icon {
     width: 56px; height: 56px;
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-    border-radius: 16px;
-    display: inline-flex; align-items: center; justify-content: center;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(78,140,255,0.25);
+    border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; box-shadow: 0 8px 32px rgba(78,140,255,0.25);
   }
   .header-icon svg { width: 28px; height: 28px; fill: white; }
-
   h1 {
     font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px;
     background: linear-gradient(135deg, #fff 0%, #c0cfee 100%);
@@ -123,14 +91,9 @@
   }
   .subtitle { color: var(--text-secondary); font-size: 1.05rem; font-weight: 400; }
 
-  /* ── Controls ── */
   .controls { display: flex; gap: 12px; margin-bottom: 16px; }
   .search-wrapper { flex: 1; position: relative; }
-  .search-icon {
-    position: absolute; left: 18px; top: 50%;
-    transform: translateY(-50%); color: var(--text-muted); pointer-events: none;
-  }
-
+  .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
   .search-input {
     width: 100%; padding: 16px 20px 16px 50px;
     background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 14px;
@@ -141,13 +104,11 @@
   .search-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px var(--glow-blue); }
   .search-input::placeholder { color: var(--text-muted); }
 
-  /* ── Autocomplete ── */
   .autocomplete {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0;
     background: var(--bg-card); border: 1.5px solid var(--border-light); border-radius: 12px;
     max-height: 260px; overflow-y: auto; z-index: 100;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.5); display: none;
-    transition: background 0.3s;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5); display: none; transition: background 0.3s;
   }
   .autocomplete.active { display: block; }
   .autocomplete-item {
@@ -159,11 +120,9 @@
   .autocomplete-item:hover, .autocomplete-item.highlighted { background: var(--glow-blue); color: var(--text-primary); }
   .autocomplete-item mark { background: none; color: var(--accent-cyan); font-weight: 700; }
 
-  /* ── Styled select ── */
   .styled-select { position: relative; min-width: 160px; }
   .styled-select select {
-    width: 100%; appearance: none;
-    padding: 16px 44px 16px 20px;
+    width: 100%; appearance: none; padding: 16px 44px 16px 20px;
     background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 14px;
     color: var(--text-primary); font-family: 'Outfit', sans-serif;
     font-size: 1rem; font-weight: 500; cursor: pointer; outline: none;
@@ -176,19 +135,15 @@
     border-top: 6px solid var(--text-muted); pointer-events: none;
   }
 
-  /* ── Compare controls ── */
   .compare-row { display: flex; gap: 12px; align-items: center; margin-bottom: 40px; flex-wrap: wrap; }
-
   .compare-toggle {
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer; user-select: none; padding: 10px 18px;
-    background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 14px;
-    color: var(--text-secondary); font-size: 0.92rem; font-weight: 500;
+    display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
+    padding: 10px 18px; background: var(--bg-input); border: 1.5px solid var(--border);
+    border-radius: 14px; color: var(--text-secondary); font-size: 0.92rem; font-weight: 500;
     transition: border-color 0.2s, color 0.2s, background 0.3s; white-space: nowrap;
   }
   .compare-toggle:hover { border-color: var(--border-light); color: var(--text-primary); }
   .compare-toggle.active { border-color: var(--accent-blue); color: var(--accent-cyan); }
-
   .compare-toggle .toggle-track {
     width: 36px; height: 20px; border-radius: 10px;
     background: var(--border); position: relative; transition: background 0.2s; flex-shrink: 0;
@@ -199,14 +154,11 @@
     position: absolute; top: 2px; left: 2px; transition: left 0.2s;
   }
   .compare-toggle.active .toggle-thumb { left: 18px; }
-
   .compare-selects { display: flex; gap: 12px; flex-wrap: wrap; }
   .compare-selects.hidden { display: none; }
 
-  /* ── Player card ── */
   .player-card { animation: fadeSlideIn 0.35s ease-out; }
   @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
   .player-header {
     display: flex; align-items: center; gap: 16px;
     margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border);
@@ -220,7 +172,6 @@
   .player-name { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
   .player-sub { color: var(--text-secondary); font-size: 0.95rem; margin-top: 2px; }
 
-  /* ── Compare layout ── */
   .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .table-section-label {
     font-family: 'JetBrains Mono', monospace;
@@ -228,12 +179,10 @@
     text-transform: uppercase; color: var(--accent-cyan); margin-bottom: 12px; padding-left: 4px;
   }
 
-  /* ── Data table ── */
   .table-wrapper {
     background: var(--bg-card); border: 1.5px solid var(--border);
     border-radius: 16px; overflow: hidden;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-    transition: background 0.3s, border-color 0.3s;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: background 0.3s, border-color 0.3s;
   }
   .pitch-table { width: 100%; border-collapse: collapse; }
   .pitch-table thead th {
@@ -241,8 +190,7 @@
     font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--accent-cyan);
     text-align: center; background: var(--bg-card-alt);
-    border-bottom: 1.5px solid var(--border);
-    transition: background 0.3s;
+    border-bottom: 1.5px solid var(--border); transition: background 0.3s;
   }
   .pitch-table thead th:first-child { text-align: left; padding-left: 20px; }
   .pitch-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
@@ -250,11 +198,9 @@
   .pitch-table tbody tr:hover { background: rgba(78,140,255,0.04); }
   .pitch-table td { padding: 14px 14px; text-align: center; font-size: 0.9rem; font-weight: 500; }
   .pitch-table td:first-child { text-align: left; padding-left: 20px; font-weight: 600; }
-
   .pitch-type-cell { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
   .pitch-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-  /* ── Usage badges ── */
   .usage-badge {
     display: inline-block; padding: 5px 12px; border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
@@ -263,32 +209,26 @@
   .usage-high    { background: rgba(52,211,153,0.15); color: var(--accent-green); }
   .usage-low     { background: rgba(248,113,113,0.12); color: var(--accent-red); }
   .usage-neutral { background: rgba(85,97,121,0.15); color: #ffffff; }
-
   .light-mode .usage-neutral { color: var(--text-primary); }
 
-  /* ── Collapsible notes ── */
   .definitions {
-    margin-top: 24px;
-    background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 16px;
-    overflow: hidden; transition: background 0.3s, border-color 0.3s;
+    margin-top: 24px; background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 16px; overflow: hidden; transition: background 0.3s, border-color 0.3s;
   }
   .definitions-toggle {
-    width: 100%; padding: 18px 24px;
-    background: none; border: none; cursor: pointer;
+    width: 100%; padding: 18px 24px; background: none; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: space-between;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
   }
   .definitions-toggle:hover { color: var(--text-secondary); }
   .definitions-arrow { transition: transform 0.25s; font-size: 0.8rem; }
   .definitions.open .definitions-arrow { transform: rotate(180deg); }
   .definitions-body {
     max-height: 0; overflow: hidden;
-    transition: max-height 0.3s ease, padding 0.3s ease;
-    padding: 0 24px;
+    transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 24px;
   }
-  .definitions.open .definitions-body { max-height: 300px; padding: 0 24px 20px; }
+  .definitions.open .definitions-body { max-height: 400px; padding: 0 24px 20px; }
   .definitions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 32px; }
   .def-item { font-size: 0.88rem; color: var(--text-secondary); }
   .def-label { font-weight: 600; color: var(--text-secondary); }
@@ -297,34 +237,27 @@
   .def-highlight .green-text { color: var(--accent-green); font-weight: 600; }
   .def-highlight .red-text { color: var(--accent-red); font-weight: 600; }
 
-  /* ── Light mode toggle ── */
-  .theme-toggle-wrapper {
-    margin-top: 20px; text-align: center;
-  }
+  .theme-toggle-wrapper { margin-top: 20px; text-align: center; }
   .theme-toggle-btn {
-    display: inline-flex; align-items: center; gap: 10px;
-    cursor: pointer; user-select: none; padding: 10px 20px;
-    background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 14px;
-    color: var(--text-secondary); font-family: 'Outfit', sans-serif;
-    font-size: 0.88rem; font-weight: 500;
-    transition: border-color 0.2s, color 0.2s, background 0.3s;
+    display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
+    padding: 10px 20px; background: var(--bg-input); border: 1.5px solid var(--border);
+    border-radius: 14px; color: var(--text-secondary); font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem; font-weight: 500; transition: border-color 0.2s, color 0.2s, background 0.3s;
   }
   .theme-toggle-btn:hover { border-color: var(--border-light); color: var(--text-primary); }
   .theme-icon { font-size: 1.1rem; }
 
-  /* ── Empty / loading ── */
   .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); }
   .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.3; }
   .empty-state p { font-size: 1.05rem; }
   .loading { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
   .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--border); border-top-color: var(--accent-blue);
-    border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    width: 36px; height: 36px; border: 3px solid var(--border);
+    border-top-color: var(--accent-blue); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Responsive ── */
   @media (max-width: 768px) {
     .controls { flex-direction: column; }
     .compare-row { flex-direction: column; }
@@ -337,7 +270,6 @@
 </style>
 </head>
 <body>
-
 <div class="app">
   <div class="header">
     <div class="header-icon">
@@ -403,20 +335,11 @@
 </div>
 
 <script>
-// ─── Pitch colors ────────────────────────────────────────────────────────────
 const PITCH_COLORS = {
-  "FF": "#ef4444",   // red
-  "SI": "#f97316",   // orange
-  "CH": "#22c55e",   // green
-  "FS": "#14b8a6",   // teal
-  "FC": "#92400e",   // brown
-  "SL": "#facc15",   // brighter yellow
-  "ST": "#b8860b",   // dark gold
-  "CU": "#38bdf8",   // light blue
-  "KC": "#a855f7",   // purple
-  "SV": "#8fa3b8",   // blue-ish grey
-  "KN": "#94a3b8", "EP": "#6ee7b7", "SC": "#fca5a5",
-  "CS": "#67e8f9", "FO": "#fdba74", "FA": "#ef4444",
+  "FF": "#ef4444", "SI": "#f97316", "CH": "#22c55e", "FS": "#14b8a6",
+  "FC": "#92400e", "SL": "#facc15", "ST": "#b8860b", "CU": "#38bdf8",
+  "KC": "#a855f7", "SV": "#8fa3b8", "KN": "#94a3b8", "EP": "#6ee7b7",
+  "SC": "#fca5a5", "CS": "#67e8f9", "FO": "#fdba74", "FA": "#ef4444",
 };
 
 const PITCH_NAMES = {
@@ -429,14 +352,12 @@ const PITCH_NAMES = {
 const PITCH_ORDER = ["FF","SI","FC","FA","SL","ST","SV","CU","KC","CS","CH","FS","FO","SC","KN","EP"];
 const CATEGORIES = ["all_counts","early_count","pitcher_ahead","pitcher_behind","pre_two_strikes"];
 
-// ─── State ───────────────────────────────────────────────────────────────────
 let DATA = null;
 let selectedPitcher = null;
 let highlightIndex = -1;
 let compareActive = false;
 let isLightMode = false;
 
-// ─── DOM ─────────────────────────────────────────────────────────────────────
 const searchInput = document.getElementById("searchInput");
 const autocomplete = document.getElementById("autocomplete");
 const handSelect = document.getElementById("handSelect");
@@ -453,7 +374,6 @@ const bottomControls = document.getElementById("bottomControls");
 const themeToggle = document.getElementById("themeToggle");
 const themeLabel = document.getElementById("themeLabel");
 
-// ─── Load ────────────────────────────────────────────────────────────────────
 async function loadData() {
   content.innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading pitch data...</p></div>`;
   try {
@@ -567,7 +487,7 @@ function updateCompareUI() {
   monthSelectB_wrapper.style.display = showMonths ? "" : "none";
 }
 
-// ─── Theme toggle ────────────────────────────────────────────────────────────
+// ─── Theme ───────────────────────────────────────────────────────────────────
 themeToggle.addEventListener("click", () => {
   isLightMode = !isLightMode;
   document.documentElement.classList.toggle("light-mode", isLightMode);
@@ -576,6 +496,8 @@ themeToggle.addEventListener("click", () => {
 });
 
 // ─── Render ──────────────────────────────────────────────────────────────────
+
+// Standard mode: color relative to all_counts baseline
 function getUsageClass(val, baseline, isAllCounts) {
   if (isAllCounts) return "usage-neutral";
   const diff = val - baseline;
@@ -584,8 +506,15 @@ function getUsageClass(val, baseline, isAllCounts) {
   return "usage-neutral";
 }
 
+// Compare mode (second box): color relative to the first box's value for same pitch + category
+function getCompareUsageClass(val, refVal) {
+  const diff = val - refVal;
+  if (diff >= 5) return "usage-high";
+  if (diff <= -5) return "usage-low";
+  return "usage-neutral";
+}
+
 function getPitchTypes(pitchData) {
-  // Filter out pitches thrown less than 2% in all counts
   return Object.keys(pitchData)
     .filter(pt => (pitchData[pt]?.["all_counts"] ?? 0) >= 2)
     .sort((a, b) => {
@@ -595,7 +524,8 @@ function getPitchTypes(pitchData) {
     });
 }
 
-function buildTable(pitchData, label) {
+// mode: "standard" = color vs all_counts, "neutral" = no coloring, "compare" = color vs reference data
+function buildTable(pitchData, label, mode, refData) {
   if (!pitchData || !Object.keys(pitchData).length) {
     return `<div class="empty-state" style="padding:40px;"><p>No data available</p></div>`;
   }
@@ -607,11 +537,19 @@ function buildTable(pitchData, label) {
   const rows = pitchTypes.map(pt => {
     const name = PITCH_NAMES[pt] || pt;
     const color = PITCH_COLORS[pt] || "#94a3b8";
-    const baseline = pitchData[pt]?.["all_counts"] ?? 0;
     const cells = CATEGORIES.map(cat => {
       const val = pitchData[pt]?.[cat] ?? 0;
-      const isAllCounts = cat === "all_counts";
-      const cls = getUsageClass(val, baseline, isAllCounts);
+      let cls = "usage-neutral";
+
+      if (mode === "standard") {
+        const baseline = pitchData[pt]?.["all_counts"] ?? 0;
+        cls = getUsageClass(val, baseline, cat === "all_counts");
+      } else if (mode === "compare" && refData) {
+        const refVal = refData[pt]?.[cat] ?? 0;
+        cls = getCompareUsageClass(val, refVal);
+      }
+      // mode === "neutral" keeps cls as "usage-neutral"
+
       return `<td><span class="usage-badge ${cls}">${val > 0 ? val + "%" : "—"}</span></td>`;
     }).join("");
     return `<tr>
@@ -665,29 +603,37 @@ function renderResults() {
 
   if (compareActive) {
     const compareType = compareTypeSelect.value;
+    let firstData = null, secondData = null, firstLabel = "", secondLabel = "";
+
     if (compareType === "split_season") {
       const ss = entry.split_season || {};
-      tablesHTML = `<div class="compare-grid">
-        <div>${buildTable(ss.first?.data, ss.first?.label || "First Half")}</div>
-        <div>${buildTable(ss.second?.data, ss.second?.label || "Second Half")}</div>
-      </div>`;
+      firstData = ss.first?.data;
+      secondData = ss.second?.data;
+      firstLabel = ss.first?.label || "First Half";
+      secondLabel = ss.second?.label || "Second Half";
     } else if (compareType === "allstar_break") {
       const ab = entry.allstar_break || {};
-      tablesHTML = `<div class="compare-grid">
-        <div>${buildTable(ab.first?.data, ab.first?.label || "Pre All-Star Break")}</div>
-        <div>${buildTable(ab.second?.data, ab.second?.label || "Post All-Star Break")}</div>
-      </div>`;
+      firstData = ab.first?.data;
+      secondData = ab.second?.data;
+      firstLabel = ab.first?.label || "Pre All-Star Break";
+      secondLabel = ab.second?.label || "Post All-Star Break";
     } else {
       const monthly = entry.monthly || {};
       const mA = monthSelectA.value;
       const mB = monthSelectB.value;
-      tablesHTML = `<div class="compare-grid">
-        <div>${buildTable(monthly[mA]?.data, monthly[mA]?.label || "Month A")}</div>
-        <div>${buildTable(monthly[mB]?.data, monthly[mB]?.label || "Month B")}</div>
-      </div>`;
+      firstData = monthly[mA]?.data;
+      secondData = monthly[mB]?.data;
+      firstLabel = monthly[mA]?.label || "Month A";
+      secondLabel = monthly[mB]?.label || "Month B";
     }
+
+    // First box: neutral (no coloring). Second box: colored relative to first box.
+    tablesHTML = `<div class="compare-grid">
+      <div>${buildTable(firstData, firstLabel, "neutral", null)}</div>
+      <div>${buildTable(secondData, secondLabel, "compare", firstData)}</div>
+    </div>`;
   } else {
-    tablesHTML = buildTable(entry.season, null);
+    tablesHTML = buildTable(entry.season, null, "standard", null);
   }
 
   const notes = `
@@ -705,7 +651,8 @@ function renderResults() {
           <div class="def-divider"></div>
           <div class="def-highlight">
             <span class="red-text">Red Highlight:</span> 5 percentage points or greater below "All Counts" usage for a specific pitch.<br>
-            <span class="green-text">Green Highlight:</span> 5 percentage points or greater above "All Counts" usage for a specific pitch.
+            <span class="green-text">Green Highlight:</span> 5 percentage points or greater above "All Counts" usage for a specific pitch.<br><br>
+            When the "Compare" toggle is selected, the red and green highlighting is relative to the earlier period, signifying a change in approach.
           </div>
         </div>
       </div>
@@ -723,7 +670,6 @@ function renderResults() {
     </div>`;
 }
 
-// ─── Init ────────────────────────────────────────────────────────────────────
 loadData();
 </script>
 </body>
