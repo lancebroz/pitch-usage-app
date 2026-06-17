@@ -304,7 +304,25 @@ function PitchUsageAnalyzer() {
     return name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  function calculateUsageForData(data, pitcher, stand) {
+  // Get the full repertoire of pitch types a pitcher throws (across full season, both years checked)
+  function getFullRepertoire(pitcher, stand) {
+    const repertoire = {};  // pitchType -> true
+    // Check 2026 season data
+    if (data2026) {
+      const matched2026 = findPitcherInData(data2026.data || {}, pitcher);
+      if (matched2026 && data2026.data[matched2026] && data2026.data[matched2026][stand]) {
+        Object.keys(data2026.data[matched2026][stand]).forEach(function(pt) { repertoire[pt] = true; });
+      }
+    }
+    // Check 2025 season data
+    const matched2025 = findPitcherInData(PITCH_DATA_2025_SEASON, pitcher);
+    if (matched2025 && PITCH_DATA_2025_SEASON[matched2025] && PITCH_DATA_2025_SEASON[matched2025][stand]) {
+      Object.keys(PITCH_DATA_2025_SEASON[matched2025][stand]).forEach(function(pt) { repertoire[pt] = true; });
+    }
+    return Object.keys(repertoire);
+  }
+
+  function calculateUsageForData(data, pitcher, stand, fullPitchList) {
     if (!pitcher || !data) return null;
     
     // Find the pitcher in this dataset (handles name format differences)
@@ -314,15 +332,17 @@ function PitchUsageAnalyzer() {
     const pitcherData = data[matchedPitcher][stand];
     if (!pitcherData) return null;
     const result = {};
-    const pitchTypes = Object.keys(pitcherData);
+    // Use the full pitch list if provided, otherwise just the pitches in this dataset
+    const pitchTypes = fullPitchList && fullPitchList.length > 0 ? fullPitchList : Object.keys(pitcherData);
 
     let allCountsTotal = 0;
     const allCountsPitchTotals = {};
     pitchTypes.forEach(function(pitchType) {
       let pitchSum = 0;
+      const pd = pitcherData[pitchType] || {};
       ALL_COUNTS.forEach(function([balls, strikes]) {
         const countKey = balls + '-' + strikes;
-        pitchSum += pitcherData[pitchType][countKey] || 0;
+        pitchSum += pd[countKey] || 0;
       });
       allCountsPitchTotals[pitchType] = pitchSum;
       allCountsTotal += pitchSum;
@@ -338,9 +358,10 @@ function PitchUsageAnalyzer() {
       const pitchTotals = {};
       pitchTypes.forEach(function(pitchType) {
         let pitchSum = 0;
+        const pd = pitcherData[pitchType] || {};
         counts.forEach(function([balls, strikes]) {
           const countKey = balls + '-' + strikes;
-          pitchSum += pitcherData[pitchType][countKey] || 0;
+          pitchSum += pd[countKey] || 0;
         });
         pitchTotals[pitchType] = pitchSum;
         categoryTotal += pitchSum;
@@ -353,14 +374,20 @@ function PitchUsageAnalyzer() {
     return result;
   }
 
+  // Full repertoire for the selected pitcher/stand (used so both tables show all pitch types)
+  const fullRepertoire = React.useMemo(function() {
+    if (!selectedPitcher) return [];
+    return getFullRepertoire(selectedPitcher, selectedStand);
+  }, [selectedPitcher, selectedStand, data2026]);
+
   const calculateUsage = React.useMemo(function() {
-    return calculateUsageForData(currentData, selectedPitcher, selectedStand);
-  }, [selectedPitcher, selectedStand, currentData]);
+    return calculateUsageForData(currentData, selectedPitcher, selectedStand, compareMode ? fullRepertoire : null);
+  }, [selectedPitcher, selectedStand, currentData, compareMode, fullRepertoire]);
 
   const calculateCompareUsage = React.useMemo(function() {
     if (!compareMode || !compareData) return null;
-    return calculateUsageForData(compareData, selectedPitcher, selectedStand);
-  }, [compareMode, compareData, selectedPitcher, selectedStand]);
+    return calculateUsageForData(compareData, selectedPitcher, selectedStand, fullRepertoire);
+  }, [compareMode, compareData, selectedPitcher, selectedStand, fullRepertoire]);
 
   function handleSelectPitcher(pitcher) {
     setSelectedPitcher(pitcher);
@@ -402,6 +429,27 @@ function PitchUsageAnalyzer() {
   function getPitcherGameDates(pitcher, year) {
     const games = getPitcherGames(pitcher, year);
     return games.map(function(g) { return g.date; });
+  }
+
+  // Determine a chronological anchor (earliest date) for a selection so we can
+  // order the compare tables earlier -> later (left -> right).
+  function getSelectionAnchor(year, period, month, startRangeVal, pitcher, dateStart) {
+    // Year is the primary sort key (2025 always before 2026)
+    const yearNum = parseInt(year, 10);
+    if (period === 'daterange' && dateStart) {
+      return year + '-' + dateStart;
+    }
+    if (period === 'month' && month) {
+      const monthIdx = ['March','April','May','June','July','August','September','October'].indexOf(month);
+      return year + '-' + String(monthIdx + 3).padStart(2, '0');
+    }
+    if (period === 'starts' && pitcher) {
+      const games = getPitcherGames(pitcher, year);
+      const start = startRangeVal[0];
+      if (games[start]) return year + '-' + games[start].date;
+    }
+    // Full season -> anchor at start of year
+    return year + '-00';
   }
 
   // Calendar component
@@ -620,16 +668,14 @@ function PitchUsageAnalyzer() {
     );
   }
 
-  function renderTable(usage, title, baselineUsage, isCompareTable, pitchOrder) {
+  function renderTable(usage, title, baselineUsage, isCompareTable, pitchOrder, showDiffColoring) {
     if (!usage) return null;
     
     let sortedPitches;
-    if (isCompareTable && pitchOrder) {
-      // Use the same order as the primary table
+    if (pitchOrder) {
+      // Use the shared order (full repertoire). Include every pitch, even 0% ones.
       sortedPitches = pitchOrder.map(function(pitchCode) {
         return [pitchCode, usage[pitchCode] || {}];
-      }).filter(function([code, data]) {
-        return Object.keys(data).length > 0;
       });
     } else {
       sortedPitches = Object.entries(usage).sort(function(a, b) {
@@ -654,7 +700,6 @@ function PitchUsageAnalyzer() {
             ),
             e('tbody', null,
               sortedPitches.map(function([pitchCode, categories], idx) {
-                const thisBaseline = categories['All Counts'];
                 return e('tr', {key: pitchCode, style: {borderBottom: '1px solid #1e293b', background: idx % 2 === 0 ? 'transparent' : 'rgba(30,41,59,0.3)'}},
                   e('td', {style: {padding: '10px 14px'}},
                     e('div', {style: {display: 'flex', alignItems: 'center', gap: '8px'}},
@@ -663,12 +708,13 @@ function PitchUsageAnalyzer() {
                     )
                   ),
                   columnOrder.map(function(cat) {
-                    const pct = categories[cat];
+                    const pct = categories[cat] || 0;
                     const isAllCounts = cat === 'All Counts';
                     
                     let bgColor, textColor;
-                    if (isCompareTable && baselineUsage && baselineUsage[pitchCode]) {
-                      const baseVal = baselineUsage[pitchCode][cat] || 0;
+                    // Only apply diff coloring on the "later" table when comparing, cell-by-cell
+                    if (showDiffColoring && baselineUsage) {
+                      const baseVal = (baselineUsage[pitchCode] && baselineUsage[pitchCode][cat]) || 0;
                       const diff = pct - baseVal;
                       if (diff >= 5) {
                         bgColor = 'rgba(34, 197, 94, 0.25)';
@@ -677,29 +723,13 @@ function PitchUsageAnalyzer() {
                         bgColor = 'rgba(239, 68, 68, 0.25)';
                         textColor = '#ef4444';
                       } else {
-                        bgColor = 'rgba(148, 163, 184, 0.08)';
-                        textColor = '#94a3b8';
-                      }
-                    } else if (!isCompareTable) {
-                      if (isAllCounts) {
-                        bgColor = 'rgba(148, 163, 184, 0.1)';
+                        bgColor = 'transparent';
                         textColor = '#e2e8f0';
-                      } else {
-                        const diff = pct - thisBaseline;
-                        if (diff >= 5) {
-                          bgColor = 'rgba(34, 197, 94, 0.2)';
-                          textColor = '#22c55e';
-                        } else if (diff <= -5) {
-                          bgColor = 'rgba(239, 68, 68, 0.2)';
-                          textColor = '#ef4444';
-                        } else {
-                          bgColor = 'rgba(148, 163, 184, 0.08)';
-                          textColor = '#94a3b8';
-                        }
                       }
                     } else {
-                      bgColor = 'rgba(148, 163, 184, 0.08)';
-                      textColor = '#94a3b8';
+                      // No diff coloring - plain cells (slight highlight on All Counts column)
+                      bgColor = isAllCounts ? 'rgba(148, 163, 184, 0.1)' : 'transparent';
+                      textColor = '#e2e8f0';
                     }
                     
                     return e('td', {key: cat, style: {padding: '10px 6px', textAlign: 'center', background: isAllCounts ? 'rgba(59,130,246,0.05)' : 'transparent'}},
@@ -818,24 +848,67 @@ function PitchUsageAnalyzer() {
     // Tables
     !loading2026 && calculateUsage && e('div', {style: {maxWidth: '1400px', margin: '0 auto', animation: 'fadeIn 0.4s ease-out'}},
       e('div', {style: {display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center'}},
-        renderTable(calculateUsage, getLabel(selectedYear, selectedPeriod, selectedMonth, startRange, pitcherGames, dateRangeStart, dateRangeEnd), null, false, null),
-        compareMode && calculateCompareUsage && renderTable(calculateCompareUsage, getLabel(compareYear, comparePeriod, compareMonth, compareStartRange, comparePitcherGames, compareDateRangeStart, compareDateRangeEnd), calculateUsage, true, Object.entries(calculateUsage).sort(function(a, b) { return (b[1]['All Counts'] || 0) - (a[1]['All Counts'] || 0); }).map(function(x) { return x[0]; })),
-        compareMode && !calculateCompareUsage && e('div', {style: {flex: '1', minWidth: '480px', padding: '40px', textAlign: 'center', background: 'rgba(34, 197, 94, 0.05)', borderRadius: '16px', border: '1px dashed rgba(34, 197, 94, 0.3)'}},
-          e('p', {style: {color: '#22c55e', fontSize: '15px', margin: 0}}, 'No data found for ' + selectedPitcher + ' in ' + compareYear),
-          e('p', {style: {color: '#64748b', fontSize: '13px', marginTop: '8px'}}, 'This pitcher may not have data in the selected time period.')
-        )
+        (function() {
+          // Labels for each selection
+          const primaryLabel = getLabel(selectedYear, selectedPeriod, selectedMonth, startRange, pitcherGames, dateRangeStart, dateRangeEnd);
+          const compareLabel = getLabel(compareYear, comparePeriod, compareMonth, compareStartRange, comparePitcherGames, compareDateRangeStart, compareDateRangeEnd);
+
+          // Shared pitch order based on full repertoire, sorted by primary usage
+          const pitchOrder = fullRepertoire.length > 0
+            ? fullRepertoire.slice().sort(function(a, b) {
+                const av = (calculateUsage[a] && calculateUsage[a]['All Counts']) || 0;
+                const bv = (calculateUsage[b] && calculateUsage[b]['All Counts']) || 0;
+                return bv - av;
+              })
+            : Object.entries(calculateUsage).sort(function(a, b) { return (b[1]['All Counts'] || 0) - (a[1]['All Counts'] || 0); }).map(function(x) { return x[0]; });
+
+          if (!compareMode) {
+            // Single table, no diff coloring
+            return renderTable(calculateUsage, primaryLabel, null, false, null, false);
+          }
+
+          if (!calculateCompareUsage) {
+            // Compare on but no data found
+            return [
+              renderTable(calculateUsage, primaryLabel, null, false, pitchOrder, false),
+              e('div', {key: 'nodata', style: {flex: '1', minWidth: '480px', padding: '40px', textAlign: 'center', background: 'rgba(34, 197, 94, 0.05)', borderRadius: '16px', border: '1px dashed rgba(34, 197, 94, 0.3)'}},
+                e('p', {style: {color: '#22c55e', fontSize: '15px', margin: 0}}, 'No data found for ' + selectedPitcher + ' in ' + compareYear),
+                e('p', {style: {color: '#64748b', fontSize: '13px', marginTop: '8px'}}, 'This pitcher may not have data in the selected time period.')
+              )
+            ];
+          }
+
+          // Both tables present - determine chronological order (earlier left, later right)
+          const primaryAnchor = getSelectionAnchor(selectedYear, selectedPeriod, selectedMonth, startRange, selectedPitcher, dateRangeStart);
+          const compareAnchor = getSelectionAnchor(compareYear, comparePeriod, compareMonth, compareStartRange, selectedPitcher, compareDateRangeStart);
+
+          // primary is "earlier" if its anchor sorts before compare's
+          const primaryIsEarlier = primaryAnchor <= compareAnchor;
+
+          const earlierUsage = primaryIsEarlier ? calculateUsage : calculateCompareUsage;
+          const earlierLabel = primaryIsEarlier ? primaryLabel : compareLabel;
+          const laterUsage = primaryIsEarlier ? calculateCompareUsage : calculateUsage;
+          const laterLabel = primaryIsEarlier ? compareLabel : primaryLabel;
+
+          // Left = earlier (no diff coloring, it's the baseline)
+          // Right = later (cells colored vs the earlier table, cell-by-cell)
+          return [
+            renderTable(earlierUsage, earlierLabel, null, false, pitchOrder, false),
+            renderTable(laterUsage, laterLabel, earlierUsage, true, pitchOrder, true)
+          ];
+        })()
       ),
-      // Legend
-      e('div', {style: {marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap', fontSize: '12px', color: '#64748b'}},
+      // Legend - only show in compare mode
+      compareMode && calculateCompareUsage && e('div', {style: {marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap', fontSize: '12px', color: '#64748b'}},
         e('div', {style: {display: 'flex', alignItems: 'center', gap: '6px'}},
-          e('div', {style: {width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(34,197,94,0.2)', border: '1px solid #22c55e'}}),
-          e('span', null, '+5pp')
+          e('div', {style: {width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(34,197,94,0.25)', border: '1px solid #22c55e'}}),
+          e('span', null, 'More than earlier window (+5pp)')
         ),
         e('div', {style: {display: 'flex', alignItems: 'center', gap: '6px'}},
-          e('div', {style: {width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444'}}),
-          e('span', null, '-5pp')
+          e('div', {style: {width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(239,68,68,0.25)', border: '1px solid #ef4444'}}),
+          e('span', null, 'Less than earlier window (-5pp)')
         ),
-        compareMode && e('span', {style: {color: '#475569'}}, '| Compare colors show diff from left table')
+        e('span', {style: {color: '#475569'}}, '| Right table colored vs. left (earlier → later)')
       )
     ),
     // Empty State
